@@ -1,9 +1,32 @@
 import express from "express"
+import bodyParser from "body-parser"
+import crypto from 'node:crypto'
 
 const app = express()
 
-// needed to parse JSON response bodies
-app.use("/webhooks/:topic", express.json())
+export const hmacCheckMiddleware = async (req, res, next) => {
+  const receivedHmac = req.headers['x-shopify-hmac-sha256']
+
+  const generatedHmac = crypto
+    .createHmac('sha256', process.env.WEBHOOK_HMAC_SECRET)
+    .update(req.body, 'utf8', 'hex')
+    .digest('base64')
+
+  if (generatedHmac !== receivedHmac) {
+    console.log("Received a request which failed HMAC validation, discarding")
+    return res.sendStatus(401)
+  }
+
+  // Now, if you want to use the parsed body later in your app, you can parse it here:
+  req.body = JSON.parse(req.body)
+  next()
+}
+
+app.use(
+  '/webhooks/:topic',
+  bodyParser.raw({ type: 'application/json' }),
+  hmacCheckMiddleware
+)
 
 app.post("/webhooks/:topic", (req, res) => {
   console.log("Webhook received, topic: ", req.headers["x-shopify-topic"])
