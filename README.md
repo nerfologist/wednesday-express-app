@@ -2,6 +2,7 @@
 - `git checkout step-0`: initial state (nothing developed)
 - `git checkout step-1`: able to run a Cloudflare tunnel and receive webhooks
 - `git checkout step-2`: add HMAC check
+- `git checkout step-3`: add simple GraphQL call to add a tag to product
 
 ## How to run
 Navigate to your Shopify shop's Settings > Notifications > Webhooks and check
