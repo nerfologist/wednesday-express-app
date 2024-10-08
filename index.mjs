@@ -40,7 +40,7 @@ app.post("/webhooks/:topic", (req, res) => {
   const productGid = req.body["admin_graphql_api_id"]
 
   if (req.headers["x-shopify-topic"] === "products/update") {
-    addProductTag(productGid, ["processed-by-webhook"])
+    addProductTag(productGid, ["processed-by-express-webhook"])
     console.log("Tag successfully added to product!")
   }
   res.sendStatus(200)
