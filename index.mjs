@@ -2,6 +2,10 @@ import express from "express"
 import bodyParser from "body-parser"
 import crypto from 'node:crypto'
 
+import {
+  addProductTag,
+} from './graphqlClient.mjs'
+
 const app = express()
 
 export const hmacCheckMiddleware = async (req, res, next) => {
@@ -32,6 +36,13 @@ app.post("/webhooks/:topic", (req, res) => {
   console.log("Webhook received, topic: ", req.headers["x-shopify-topic"])
   console.log("Payload: ", JSON.stringify(req.body, null, 2))
   console.log("Headers: ", JSON.stringify(req.headers, null, 2))
+
+  const productGid = req.body["admin_graphql_api_id"]
+
+  if (req.headers["x-shopify-topic"] === "products/update") {
+    addProductTag(productGid, ["processed-by-webhook"])
+    console.log("Tag successfully added to product!")
+  }
   res.sendStatus(200)
 })
 
